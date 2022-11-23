@@ -3,6 +3,7 @@ require("dotenv").config();
 require('hardhat-contract-sizer');
 require("@nomiclabs/hardhat-waffle");
 require(`@nomiclabs/hardhat-etherscan`);
+require("@nomiclabs/hardhat-vyper");
 require("solidity-coverage");
 require('hardhat-gas-reporter');
 require('hardhat-deploy');
@@ -47,6 +48,10 @@ function accounts(chainKey) {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
+
+    vyper: {
+        version: "0.3.1",
+    },
 
   solidity: {
     compilers: [
