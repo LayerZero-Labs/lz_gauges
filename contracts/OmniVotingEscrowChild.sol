@@ -1,0 +1,68 @@
+// SPDX-License-Identifier: BUSL-1.1
+
+pragma solidity ^0.8.0;
+pragma abicoder v2;
+
+import "./IVotingEscrow.sol";
+import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
+
+contract OmniVotingEscrowChild is NonblockingLzApp {
+
+    mapping(address => IVotingEscrow.Point) public userPoints; // -> balanceOf
+    IVotingEscrow.Point public totalSupplyPoint; // -> totalSupply
+
+    // Packet types for child chains:
+    uint16 PT_USER = 0; // user balance and total supply update
+    uint16 PT_TS = 1; // total supply update
+
+    event UserBalFromChain(uint16 srcChainId, address user, IVotingEscrow.Point userPoint, IVotingEscrow.Point totalSupplyPoint);
+    event TotalSupplyFromChain(uint16 srcChainId, IVotingEscrow.Point totalSupplyPoint);
+
+    constructor(address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {}
+
+    function _nonblockingLzReceive(uint16 _srcChainId, bytes memory /*_srcAddress*/, uint64 /*_nonce*/, bytes memory _payload) internal virtual override {
+        uint16 packetType;
+        assembly { packetType := mload(add(_payload, 32)) }
+
+        if (packetType == PT_USER) {
+            _updateUserAndTotalSupplyFromChain(_srcChainId, _payload);
+        } else if (packetType == PT_TS) {
+            _updateTotalSupplyFromChain(_srcChainId, _payload);
+        } else {
+            revert("OmniVotingEscrowChild: unknown packet type");
+        }
+    }
+
+    function _updateUserAndTotalSupplyFromChain(uint16 _srcChainId, bytes memory _payload) internal {
+        (, address _userAddress, IVotingEscrow.Point memory _userPoint, IVotingEscrow.Point memory _totalSupplyPoint) = abi.decode(_payload, (uint16, address, IVotingEscrow.Point, IVotingEscrow.Point));
+        userPoints[_userAddress] = _userPoint;
+        totalSupplyPoint = _totalSupplyPoint;
+        emit UserBalFromChain(_srcChainId, _userAddress, _userPoint, _totalSupplyPoint);
+    }
+
+    function _updateTotalSupplyFromChain(uint16 _srcChainId, bytes memory _payload) internal {
+        (, IVotingEscrow.Point memory _totalSupplyPoint) = abi.decode(_payload, (uint16, IVotingEscrow.Point));
+        totalSupplyPoint = _totalSupplyPoint;
+        emit TotalSupplyFromChain(_srcChainId, _totalSupplyPoint);
+    }
+
+    function balanceOf(address _user) public view returns (uint256) {
+        return _getPointValue(userPoints[_user]);
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return _getPointValue(totalSupplyPoint);
+    }
+
+    // external for testing
+    function getPointValue(IVotingEscrow.Point memory _point) external view returns (uint256) {
+        return _getPointValue(_point);
+    }
+
+    function _getPointValue(IVotingEscrow.Point memory _point) internal view returns (uint256) {
+        IVotingEscrow.Point memory p = _point;
+
+        int128 bias = p.bias - (p.slope * int128(uint128(block.timestamp - p.ts)));
+        return bias < 0 ? 0 : uint256(uint128(bias));
+    }
+}
