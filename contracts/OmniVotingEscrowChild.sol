@@ -3,7 +3,8 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import "./IVotingEscrow.sol";
+import "./interfaces/IVotingEscrow.sol";
+import "./interfaces/IL2LayerZeroDelegation.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
 contract OmniVotingEscrowChild is NonblockingLzApp {
@@ -15,10 +16,15 @@ contract OmniVotingEscrowChild is NonblockingLzApp {
     uint16 PT_USER = 0; // user balance and total supply update
     uint16 PT_TS = 1; // total supply update
 
+    IL2LayerZeroDelegation public immutable delegationHook;
+
     event UserBalFromChain(uint16 srcChainId, address user, IVotingEscrow.Point userPoint, IVotingEscrow.Point totalSupplyPoint);
     event TotalSupplyFromChain(uint16 srcChainId, IVotingEscrow.Point totalSupplyPoint);
 
-    constructor(address _lzEndpoint) NonblockingLzApp(_lzEndpoint) {}
+    constructor(address _lzEndpoint, address _delegationHook) NonblockingLzApp(_lzEndpoint) {
+        require(_delegationHook != address(0x0), "OmniVotingEscrowChild: delegation hook cannot be 0x0");
+        delegationHook = IL2LayerZeroDelegation(_delegationHook);
+    }
 
     function _nonblockingLzReceive(uint16 _srcChainId, bytes memory /*_srcAddress*/, uint64 /*_nonce*/, bytes memory _payload) internal virtual override {
         uint16 packetType;
@@ -37,6 +43,8 @@ contract OmniVotingEscrowChild is NonblockingLzApp {
         (, address _userAddress, IVotingEscrow.Point memory _userPoint, IVotingEscrow.Point memory _totalSupplyPoint) = abi.decode(_payload, (uint16, address, IVotingEscrow.Point, IVotingEscrow.Point));
         userPoints[_userAddress] = _userPoint;
         totalSupplyPoint = _totalSupplyPoint;
+
+        delegationHook.onVeBalBridged(_userAddress);
         emit UserBalFromChain(_srcChainId, _userAddress, _userPoint, _totalSupplyPoint);
     }
 
@@ -59,6 +67,7 @@ contract OmniVotingEscrowChild is NonblockingLzApp {
         return _getPointValue(_point);
     }
 
+    // TODO confirm we do not need lockedEnd from the L1
     function _getPointValue(IVotingEscrow.Point memory _point) internal view returns (uint256) {
         IVotingEscrow.Point memory p = _point;
 

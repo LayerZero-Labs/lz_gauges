@@ -4,7 +4,7 @@ const { BigNumber } = require("ethers");
 
 describe("VotingEscrowMock", function () {
     let ve, ove, ovec, parentEndpoint, childEndpoint
-    let VE, OVE, OVEC, LZEndpointMock, user
+    let VE, OVE, OVEC, LZEndpointMock, user, VER, ver, L2Delegation, l2Delegation
     const parentChainId = 1
     const childChainId = 2
 
@@ -13,6 +13,8 @@ describe("VotingEscrowMock", function () {
         VE = await ethers.getContractFactory("VotingEscrowMock")
         OVE = await ethers.getContractFactory("OmniVotingEscrow")
         OVEC = await ethers.getContractFactory("OmniVotingEscrowChild")
+        VER = await ethers.getContractFactory("VotingEscrowRemapperMock")
+        L2Delegation = await ethers.getContractFactory("L2LayerZeroDelegation")
         user = (await ethers.getSigners())[1].address
     })
 
@@ -21,11 +23,13 @@ describe("VotingEscrowMock", function () {
         // parent chain contracts
         parentEndpoint = await LZEndpointMock.deploy(parentChainId)
         ve = await VE.deploy()
-        ove = await OVE.deploy(parentEndpoint.address, ve.address)
+        ver = await VER.deploy(ve.address)
+        ove = await OVE.deploy(parentEndpoint.address, ver.address)
 
         // child chain contracts
         childEndpoint = await LZEndpointMock.deploy(childChainId)
-        ovec = await OVEC.deploy(childEndpoint.address)
+        l2Delegation = await L2Delegation.deploy()
+        ovec = await OVEC.deploy(childEndpoint.address, l2Delegation.address)
 
         // internal bookkeeping for endpoints (not part of a real deploy, just for this test)
         parentEndpoint.setDestLzEndpoint(ovec.address, childEndpoint.address)
