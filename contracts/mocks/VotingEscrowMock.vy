@@ -35,3 +35,7 @@ def set_user_point_history(_addr: address, _epoch: uint256, _point: Point):
 @external
 def checkpoint():
     self.checkpoint_time = block.timestamp
+
+@external
+def locked__end(_addr: address) -> uint256:
+    return block.timestamp + 1000

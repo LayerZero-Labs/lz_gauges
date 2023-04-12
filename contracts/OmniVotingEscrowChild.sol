@@ -9,6 +9,7 @@ import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
 contract OmniVotingEscrowChild is NonblockingLzApp {
 
+    mapping(address => uint256) public locked__end; // -> end of lock period
     mapping(address => IVotingEscrow.Point) public userPoints; // -> balanceOf
     IVotingEscrow.Point public totalSupplyPoint; // -> totalSupply
 
@@ -40,7 +41,8 @@ contract OmniVotingEscrowChild is NonblockingLzApp {
     }
 
     function _updateUserAndTotalSupplyFromChain(uint16 _srcChainId, bytes memory _payload) internal {
-        (, address _userAddress, IVotingEscrow.Point memory _userPoint, IVotingEscrow.Point memory _totalSupplyPoint) = abi.decode(_payload, (uint16, address, IVotingEscrow.Point, IVotingEscrow.Point));
+        (, address _userAddress, uint256 lockedEnd, IVotingEscrow.Point memory _userPoint, IVotingEscrow.Point memory _totalSupplyPoint) = abi.decode(_payload, (uint16, address, uint256, IVotingEscrow.Point, IVotingEscrow.Point));
+        locked__end[_userAddress] = lockedEnd;
         userPoints[_userAddress] = _userPoint;
         totalSupplyPoint = _totalSupplyPoint;
 
@@ -51,6 +53,8 @@ contract OmniVotingEscrowChild is NonblockingLzApp {
     function _updateTotalSupplyFromChain(uint16 _srcChainId, bytes memory _payload) internal {
         (, IVotingEscrow.Point memory _totalSupplyPoint) = abi.decode(_payload, (uint16, IVotingEscrow.Point));
         totalSupplyPoint = _totalSupplyPoint;
+
+        delegationHook.onVeBalSupplyUpdate();
         emit TotalSupplyFromChain(_srcChainId, _totalSupplyPoint);
     }
 

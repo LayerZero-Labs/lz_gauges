@@ -16,4 +16,5 @@ interface IVotingEscrow {
     function user_point_history(address _user, uint256 _epoch) external returns (Point memory);
     function point_history(uint256 _epoch) external returns (Point memory);
     function checkpoint() external;
+    function locked__end(address user) external view returns (uint256);
 }

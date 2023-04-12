@@ -8,21 +8,21 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
     const lzEndpointAddress = LZ_ENDPOINTS[hre.network.name]
     console.log(`[${hre.network.name}] Endpoint Address: ${lzEndpointAddress}`)
 
-    let votingEscrowAddress
+    let votingEscrowRemapper
 
     if (hre.network.name == "ethereum") {
-        votingEscrowAddress = "0xC128a9954e6c874eA3d62ce62B468bA073093F25"
-    } else if (hre.network.name == "goerli") {
-        votingEscrowAddress = "0x33A99Dcc4C85C014cf12626959111D5898bbCAbF"
+        votingEscrowRemapper = "0xa523f47A933D5020b23629dDf689695AA94612Dc"
+    // } else if (hre.network.name == "goerli") {
+    //     votingEscrowRemapper = "0x33A99Dcc4C85C014cf12626959111D5898bbCAbF"
     } else if (hre.network.name == "hardhat"){
-        votingEscrowAddress = await deployments.get("VotingEscrowMock")
+        votingEscrowRemapper = await deployments.get("VotingEscrowMock")
     } else {
         throw `Cant deploy OmniVotingEscrow.sol on ${hre.network.name}`
     }
 
     await deploy("OmniVotingEscrow", {
         from: deployer,
-        args: [lzEndpointAddress, votingEscrowAddress],
+        args: [lzEndpointAddress, votingEscrowRemapper],
         log: true,
         waitConfirmations: 1,
     })

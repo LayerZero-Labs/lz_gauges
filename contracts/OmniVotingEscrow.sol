@@ -32,7 +32,7 @@ contract OmniVotingEscrow is NonblockingLzApp, IOmniVotingEscrow {
     }
 
     function estimateSendUserBalance(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams) public view returns (uint256 nativeFee, uint256 zroFee) {
-        bytes memory lzPayload = abi.encode(PT_USER, address(0x0), IVotingEscrow.Point(0,0,0,0), IVotingEscrow.Point(0,0,0,0));
+        bytes memory lzPayload = abi.encode(PT_USER, address(0x0), 0, IVotingEscrow.Point(0,0,0,0), IVotingEscrow.Point(0,0,0,0));
         return lzEndpoint.estimateFees(_dstChainId, address(this), lzPayload, _useZro, _adapterParams);
     }
 
@@ -42,32 +42,34 @@ contract OmniVotingEscrow is NonblockingLzApp, IOmniVotingEscrow {
     }
 
     function sendUserBalance(address _localUser, uint16 _dstChainId, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) public payable {
-        uint256 userEpoch = IVotingEscrow(votingEscrow).user_point_epoch(_localUser);
-        IVotingEscrow.Point memory uPoint = IVotingEscrow(votingEscrow).user_point_history(_localUser, userEpoch);
+        uint256 userEpoch = votingEscrow.user_point_epoch(_localUser);
+        IVotingEscrow.Point memory uPoint = votingEscrow.user_point_history(_localUser, userEpoch);
+
+        uint256 lockedEnd = votingEscrow.locked__end(_localUser);
 
         // always send total supply along with a user update
-        uint256 totalSupplyEpoch = IVotingEscrow(votingEscrow).epoch();
-        IVotingEscrow.Point memory tsPoint = IVotingEscrow(votingEscrow).point_history(totalSupplyEpoch);
+        uint256 totalSupplyEpoch = votingEscrow.epoch();
+        IVotingEscrow.Point memory tsPoint = votingEscrow.point_history(totalSupplyEpoch);
 
         address remappedAddress = votingEscrowRemapper.getRemoteUser(_localUser, _dstChainId);
         address remoteUser = remappedAddress != address(0x0) ? remappedAddress : _localUser;
 
-        bytes memory lzPayload = abi.encode(PT_USER, remoteUser, uPoint, tsPoint);
+        bytes memory lzPayload = abi.encode(PT_USER, remoteUser, lockedEnd, uPoint, tsPoint);
         _lzSend(_dstChainId, lzPayload, _refundAddress, _zroPaymentAddress, _adapterParams, msg.value);
         emit UserBalToChain(_dstChainId, _localUser, remoteUser, uPoint, tsPoint);
     }
 
     function sendTotalSupply(uint16 _dstChainId, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) public payable {
-        uint256 totalSupplyEpoch = IVotingEscrow(votingEscrow).epoch();
-        IVotingEscrow.Point memory tsPoint = IVotingEscrow(votingEscrow).point_history(totalSupplyEpoch);
+        uint256 totalSupplyEpoch = votingEscrow.epoch();
+        IVotingEscrow.Point memory tsPoint = votingEscrow.point_history(totalSupplyEpoch);
 
         // Total supply point may only change if none has checkpointed after the current week has started.
         // If that's the case the checkpoint is performed at this point, before bridging the total supply.
         if (_hasLastCheckpointExpired(tsPoint.ts)) {
-            IVotingEscrow(votingEscrow).checkpoint();
+            votingEscrow.checkpoint();
             // Get updated point.
-            totalSupplyEpoch = IVotingEscrow(votingEscrow).epoch();
-            tsPoint = IVotingEscrow(votingEscrow).point_history(totalSupplyEpoch);
+            totalSupplyEpoch = votingEscrow.epoch();
+            tsPoint = votingEscrow.point_history(totalSupplyEpoch);
         }
 
         bytes memory lzPayload = abi.encode(PT_TS, tsPoint);
