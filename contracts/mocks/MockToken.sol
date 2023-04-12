@@ -15,5 +15,4 @@ contract MockToken is ERC20 {
     function mint(address _to, uint _amount) public {
         _mint(_to, _amount);
     }
-
 }

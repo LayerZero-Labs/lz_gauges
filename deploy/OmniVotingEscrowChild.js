@@ -15,7 +15,6 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
         throw `Invalid network: ${hre.network.name}`
     }
 
-
     await deploy("OmniVotingEscrowChild", {
         from: deployer,
         args: [lzEndpointAddress, delegationHook],

@@ -9,7 +9,6 @@ import "./interfaces/IVotingEscrowRemapper.sol";
 import "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol";
 
 contract OmniVotingEscrow is NonblockingLzApp, IOmniVotingEscrow {
-
     IVotingEscrow public immutable votingEscrow;
     IVotingEscrowRemapper public immutable votingEscrowRemapper;
 
@@ -27,28 +26,33 @@ contract OmniVotingEscrow is NonblockingLzApp, IOmniVotingEscrow {
         votingEscrow = votingEscrowRemapper.getVotingEscrow();
     }
 
-    function _nonblockingLzReceive(uint16 /*_srcChainId*/, bytes memory /*_srcAddress*/, uint64 /*_nonce*/, bytes memory /*_payload*/) internal virtual override {
+    function _nonblockingLzReceive(
+        uint16, /*_srcChainId*/
+        bytes memory, /*_srcAddress*/
+        uint64, /*_nonce*/
+        bytes memory /*_payload*/
+    ) internal virtual override {
         revert("OmniVotingEscrow: cannot receive lzMsgs");
     }
 
-    function estimateSendUserBalance(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams) public view returns (uint256 nativeFee, uint256 zroFee) {
-        bytes memory lzPayload = abi.encode(PT_USER, address(0x0), 0, IVotingEscrow.Point(0,0,0,0), IVotingEscrow.Point(0,0,0,0));
+    function estimateSendUserBalance(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams) public view returns (uint nativeFee, uint zroFee) {
+        bytes memory lzPayload = abi.encode(PT_USER, address(0x0), 0, IVotingEscrow.Point(0, 0, 0, 0), IVotingEscrow.Point(0, 0, 0, 0));
         return lzEndpoint.estimateFees(_dstChainId, address(this), lzPayload, _useZro, _adapterParams);
     }
 
-    function estimateSendTotalSupply(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams) public view returns (uint256 nativeFee, uint256 zroFee) {
-        bytes memory lzPayload = abi.encode(PT_TS, IVotingEscrow.Point(0,0,0,0));
+    function estimateSendTotalSupply(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams) public view returns (uint nativeFee, uint zroFee) {
+        bytes memory lzPayload = abi.encode(PT_TS, IVotingEscrow.Point(0, 0, 0, 0));
         return lzEndpoint.estimateFees(_dstChainId, address(this), lzPayload, _useZro, _adapterParams);
     }
 
     function sendUserBalance(address _localUser, uint16 _dstChainId, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) public payable {
-        uint256 userEpoch = votingEscrow.user_point_epoch(_localUser);
+        uint userEpoch = votingEscrow.user_point_epoch(_localUser);
         IVotingEscrow.Point memory uPoint = votingEscrow.user_point_history(_localUser, userEpoch);
 
-        uint256 lockedEnd = votingEscrow.locked__end(_localUser);
+        uint lockedEnd = votingEscrow.locked__end(_localUser);
 
         // always send total supply along with a user update
-        uint256 totalSupplyEpoch = votingEscrow.epoch();
+        uint totalSupplyEpoch = votingEscrow.epoch();
         IVotingEscrow.Point memory tsPoint = votingEscrow.point_history(totalSupplyEpoch);
 
         address remappedAddress = votingEscrowRemapper.getRemoteUser(_localUser, _dstChainId);
@@ -60,7 +64,7 @@ contract OmniVotingEscrow is NonblockingLzApp, IOmniVotingEscrow {
     }
 
     function sendTotalSupply(uint16 _dstChainId, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) public payable {
-        uint256 totalSupplyEpoch = votingEscrow.epoch();
+        uint totalSupplyEpoch = votingEscrow.epoch();
         IVotingEscrow.Point memory tsPoint = votingEscrow.point_history(totalSupplyEpoch);
 
         // Total supply point may only change if none has checkpointed after the current week has started.
@@ -77,7 +81,7 @@ contract OmniVotingEscrow is NonblockingLzApp, IOmniVotingEscrow {
         emit TotalSupplyToChain(_dstChainId, tsPoint);
     }
 
-    function _hasLastCheckpointExpired(uint256 lastCheckpointTimestamp) internal view returns (bool) {
+    function _hasLastCheckpointExpired(uint lastCheckpointTimestamp) internal view returns (bool) {
         // If last checkpoint rounded to weeks + one week is still behind the block timestamp, then it has expired.
         return (lastCheckpointTimestamp / 1 weeks) * 1 weeks + 1 weeks < block.timestamp;
     }

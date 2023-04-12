@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 pragma solidity ^0.8.0;
 
 import "../interfaces/IVotingEscrowRemapper.sol";
 
 contract VotingEscrowRemapperMock is IVotingEscrowRemapper {
-
     IVotingEscrow public getVotingEscrow;
 
     mapping(uint16 => mapping(address => address)) public _localToRemoteAddressMap;

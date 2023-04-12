@@ -17,31 +17,30 @@ pragma solidity >=0.7.0 <0.9.0;
 import "./IVotingEscrow.sol";
 import "./IOmniVotingEscrow.sol";
 
-
 interface IVotingEscrowRemapper {
     /**
      * @notice Returns Voting Escrow contract address.
      */
     function getVotingEscrow() external view returns (IVotingEscrow);
 
-//    /**
-//     * @notice Returns Omni Voting Escrow contract address).
-//     */
-//    function getOmniVotingEscrow() external view returns (IOmniVotingEscrow);
-//
-//    /**
-//     * @notice Get timestamp when `user`'s lock finishes.
-//     * @dev The returned value is taken directly from the voting escrow.
-//     */
-//    function getLockedEnd(address user) external view returns (uint256);
+    //    /**
+    //     * @notice Returns Omni Voting Escrow contract address).
+    //     */
+    //    function getOmniVotingEscrow() external view returns (IOmniVotingEscrow);
+    //
+    //    /**
+    //     * @notice Get timestamp when `user`'s lock finishes.
+    //     * @dev The returned value is taken directly from the voting escrow.
+    //     */
+    //    function getLockedEnd(address user) external view returns (uint256);
 
-//    /**
-//     * @notice Returns the local user corresponding to an address on a remote chain.
-//     * @dev Returns `address(0)` if the remapping does not exist for the given remote user.
-//     * @param remoteUser - Address of the user on the remote chain which are querying the local address for.
-//     * @param chainId - The chain ID of the network which this user is on.
-//     */
-//    function getLocalUser(address remoteUser, uint256 chainId) external view returns (address);
+    //    /**
+    //     * @notice Returns the local user corresponding to an address on a remote chain.
+    //     * @dev Returns `address(0)` if the remapping does not exist for the given remote user.
+    //     * @param remoteUser - Address of the user on the remote chain which are querying the local address for.
+    //     * @param chainId - The chain ID of the network which this user is on.
+    //     */
+    //    function getLocalUser(address remoteUser, uint256 chainId) external view returns (address);
 
     /**
      * @notice Returns the remote user corresponding to an address on the local chain.

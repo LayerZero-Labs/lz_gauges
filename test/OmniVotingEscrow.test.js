@@ -1,6 +1,6 @@
 const { expect } = require("chai")
 const { ethers } = require("hardhat")
-const { BigNumber } = require("ethers");
+const { BigNumber } = require("ethers")
 
 describe("VotingEscrowMock", function () {
     let ve, ove, ovec, parentEndpoint, childEndpoint
@@ -35,8 +35,8 @@ describe("VotingEscrowMock", function () {
         parentEndpoint.setDestLzEndpoint(ovec.address, childEndpoint.address)
         childEndpoint.setDestLzEndpoint(ove.address, parentEndpoint.address)
 
-        await ove.setTrustedRemoteAddress(childChainId, (ethers.utils.solidityPack(["address"], [ovec.address]))) // for A, set B
-        await ovec.setTrustedRemoteAddress(parentChainId, (ethers.utils.solidityPack(["address"], [ove.address]))) // for B, set A
+        await ove.setTrustedRemoteAddress(childChainId, ethers.utils.solidityPack(["address"], [ovec.address])) // for A, set B
+        await ovec.setTrustedRemoteAddress(parentChainId, ethers.utils.solidityPack(["address"], [ove.address])) // for B, set A
     })
 
     it.skip("addresses", async function () {
@@ -53,7 +53,7 @@ describe("VotingEscrowMock", function () {
             bias: "95908345856757702214638",
             slope: "5305473300535549",
             ts: "1648652538",
-            blk: "14488225"
+            blk: "14488225",
         }
 
         let user_epoch = 5
@@ -61,14 +61,14 @@ describe("VotingEscrowMock", function () {
             bias: "959083458567577022146",
             slope: "53054733005355",
             ts: "16486525",
-            blk: "144882"
+            blk: "144882",
         }
 
-        let empty_point= {
+        let empty_point = {
             bias: 0,
             slope: 0,
             ts: 0,
-            blk: 0
+            blk: 0,
         }
 
         expect(await ve.epoch()).to.equal(0)
@@ -114,20 +114,20 @@ describe("VotingEscrowMock", function () {
             bias: "95908345856757702214638",
             slope: "5305473300535549",
             ts: "1648652538",
-            blk: "14488225"
+            blk: "14488225",
         }
         let user_epoch = 5
         let user_point = {
             bias: "959083458567577022146",
             slope: "53054733005355",
             ts: "16486525",
-            blk: "144882"
+            blk: "144882",
         }
-        let empty_point= {
+        let empty_point = {
             bias: 0,
             slope: 0,
             ts: 0,
-            blk: 0
+            blk: 0,
         }
 
         // totalSupply
@@ -154,7 +154,7 @@ describe("VotingEscrowMock", function () {
 
         let feeObj = await ove.estimateSendUserBalance(childChainId, false, "0x")
 
-        await ove.sendUserBalance(user, childChainId, user, ethers.constants.AddressZero, "0x", {value: feeObj.nativeFee})
+        await ove.sendUserBalance(user, childChainId, user, ethers.constants.AddressZero, "0x", { value: feeObj.nativeFee })
 
         totalSupply = await ovec.totalSupplyPoint()
         expect(totalSupply.bias).to.equal(point.bias)
@@ -175,13 +175,13 @@ describe("VotingEscrowMock", function () {
             bias: "95908345856757702214638",
             slope: "5305473300535549",
             ts: "1648652538",
-            blk: "14488225"
+            blk: "14488225",
         }
-        let empty_point= {
+        let empty_point = {
             bias: 0,
             slope: 0,
             ts: 0,
-            blk: 0
+            blk: 0,
         }
 
         // totalSupply
@@ -197,7 +197,7 @@ describe("VotingEscrowMock", function () {
 
         let feeObj = await ove.estimateSendTotalSupply(childChainId, false, "0x")
 
-        await ove.sendTotalSupply(childChainId, user, ethers.constants.AddressZero, "0x", {value: feeObj.nativeFee})
+        await ove.sendTotalSupply(childChainId, user, ethers.constants.AddressZero, "0x", { value: feeObj.nativeFee })
 
         totalSupply = await ovec.totalSupplyPoint()
         expect(totalSupply.bias).to.equal(point.bias)
@@ -207,7 +207,5 @@ describe("VotingEscrowMock", function () {
     })
 
     // TODO
-    it("getPointValue(): Deconstructs point properly", async function () {
-
-    })
+    it("getPointValue(): Deconstructs point properly", async function () {})
 })

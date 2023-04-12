@@ -19,30 +19,11 @@ pragma solidity >=0.7.0 <0.9.0;
  * See https://github.com/LayerZero-Labs/lz_gauges/blob/main/contracts/OmniVotingEscrow.sol for reference.
  */
 interface IOmniVotingEscrow {
-    function estimateSendUserBalance(
-        uint16 _dstChainId,
-        bool _useZro,
-        bytes calldata _adapterParams
-    ) external view returns (uint256 nativeFee, uint256 zroFee);
+    function estimateSendUserBalance(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams) external view returns (uint nativeFee, uint zroFee);
 
-    function estimateSendTotalSupply(
-        uint16 _dstChainId,
-        bool _useZro,
-        bytes calldata _adapterParams
-    ) external view returns (uint256 nativeFee, uint256 zroFee);
+    function estimateSendTotalSupply(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams) external view returns (uint nativeFee, uint zroFee);
 
-    function sendUserBalance(
-        address _localUser,
-        uint16 _dstChainId,
-        address payable _refundAddress,
-        address _zroPaymentAddress,
-        bytes memory _adapterParams
-    ) external payable;
+    function sendUserBalance(address _localUser, uint16 _dstChainId, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) external payable;
 
-    function sendTotalSupply(
-        uint16 _dstChainId,
-        address payable _refundAddress,
-        address _zroPaymentAddress,
-        bytes memory _adapterParams
-    ) external payable;
+    function sendTotalSupply(uint16 _dstChainId, address payable _refundAddress, address _zroPaymentAddress, bytes memory _adapterParams) external payable;
 }
