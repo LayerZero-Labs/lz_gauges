@@ -20,13 +20,15 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
         throw `Cant deploy OmniVotingEscrow.sol on ${hre.network.name}`
     }
 
-    await deploy("OmniVotingEscrow", {
-        from: deployer,
-        args: [lzEndpointAddress, votingEscrowRemapper],
-        log: true,
-        waitConfirmations: 1,
-    })
+    // await deploy("OmniVotingEscrow", {
+    //     from: deployer,
+    //     args: [lzEndpointAddress, votingEscrowRemapper],
+    //     log: true,
+    //     waitConfirmations: 1,
+    // })
+
+    await hre.run("verifyContract", { contract: "OmniVotingEscrow" })
 }
 
 module.exports.tags = ["OmniVotingEscrow"]
-module.exports.dependencies = ["VotingEscrowMock"]
+// module.exports.dependencies = ["VotingEscrowMock"]

@@ -77,7 +77,6 @@ contract OmniVotingEscrowChild is NonblockingLzApp {
         return _getPointValue(_point);
     }
 
-    // TODO confirm we do not need lockedEnd from the L1
     function _getPointValue(IVotingEscrow.Point memory _point) internal view returns (uint) {
         IVotingEscrow.Point memory p = _point;
 

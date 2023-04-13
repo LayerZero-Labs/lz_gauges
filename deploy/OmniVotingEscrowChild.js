@@ -21,6 +21,8 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
         log: true,
         waitConfirmations: 1,
     })
+
+    await hre.run("verifyContract", { contract: "OmniVotingEscrowChild" })
 }
 
 module.exports.tags = ["OmniVotingEscrowChild"]
