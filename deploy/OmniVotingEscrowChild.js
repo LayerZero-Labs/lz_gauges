@@ -10,7 +10,7 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
 
     let delegationHook
     if (hre.network.name == "arbitrum") {
-        delegationHook = "0x12Ca9De662A7Bf5Dc89e034a5083eF751B08EDe7"
+        delegationHook = "0x048d512c2172908aFfdC7Ab76150C533249E4b64"
     } else {
         throw `Invalid network: ${hre.network.name}`
     }
