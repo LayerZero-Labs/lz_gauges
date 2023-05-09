@@ -27,6 +27,7 @@
     "hardhat-gas-reporter": "^1.0.6"
   },
   "devDependencies": {
+    "@layerzerolabs/verify-contract": "1.0.69",
     "@layerzerolabs/prettier-plugin-solidity": "^1.0.0-beta.19",
     "@layerzerolabs/solidity-examples": "0.0.4",
     "@nomiclabs/hardhat-ethers": "^2.0.3",

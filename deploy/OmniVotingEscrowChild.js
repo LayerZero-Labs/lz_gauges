@@ -1,4 +1,5 @@
 const LZ_ENDPOINTS = require("../constants/layerzeroEndpoints.json")
+const verify = require('@layerzerolabs/verify-contract')
 
 module.exports = async function ({ deployments, getNamedAccounts }) {
     const { deploy } = deployments
@@ -22,7 +23,7 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
         waitConfirmations: 1,
     })
 
-    await hre.run("verifyContract", { contract: "OmniVotingEscrowChild" })
+    await verify(hre.network.name, "OmniVotingEscrowChild")
 }
 
 module.exports.tags = ["OmniVotingEscrowChild"]

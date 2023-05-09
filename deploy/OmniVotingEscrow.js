@@ -1,4 +1,5 @@
 const LZ_ENDPOINTS = require("../constants/layerzeroEndpoints.json")
+const verify = require('@layerzerolabs/verify-contract')
 
 module.exports = async function ({ deployments, getNamedAccounts }) {
     const { deploy } = deployments
@@ -11,7 +12,7 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
     let votingEscrowRemapper
 
     if (hre.network.name == "ethereum") {
-        votingEscrowRemapper = "0xa523f47A933D5020b23629dDf689695AA94612Dc"
+        votingEscrowRemapper = "0x6B5dA774890Db7B7b96C6f44e6a4b0F657399E2e"
         // } else if (hre.network.name == "goerli") {
         //     votingEscrowRemapper = "0x33A99Dcc4C85C014cf12626959111D5898bbCAbF"
     } else if (hre.network.name == "hardhat") {
@@ -20,14 +21,14 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
         throw `Cant deploy OmniVotingEscrow.sol on ${hre.network.name}`
     }
 
-    // await deploy("OmniVotingEscrow", {
-    //     from: deployer,
-    //     args: [lzEndpointAddress, votingEscrowRemapper],
-    //     log: true,
-    //     waitConfirmations: 1,
-    // })
+    await deploy("OmniVotingEscrow", {
+        from: deployer,
+        args: [lzEndpointAddress, votingEscrowRemapper],
+        log: true,
+        waitConfirmations: 1,
+    })
 
-    await hre.run("verifyContract", { contract: "OmniVotingEscrow" })
+    await verify(hre.network.name, "OmniVotingEscrow")
 }
 
 module.exports.tags = ["OmniVotingEscrow"]
