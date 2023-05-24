@@ -101,6 +101,16 @@ module.exports = {
       chainId: 43114,
       accounts: accounts(),
     },
+    gnosis: {
+      url: "https://rpc.ankr.com/gnosis",
+      chainId: 100,
+      accounts: accounts(),
+    },
+    zkevm: {
+      url: "https://zkevm-rpc.com",
+      chainId: 1101,
+      accounts: accounts(),
+    },
     polygon: {
       url: "https://rpc-mainnet.maticvigil.com",
       chainId: 137,

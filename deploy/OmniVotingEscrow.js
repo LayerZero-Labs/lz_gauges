@@ -4,6 +4,7 @@ const verify = require('@layerzerolabs/verify-contract')
 module.exports = async function ({ deployments, getNamedAccounts }) {
     const { deploy } = deployments
     const { deployer } = await getNamedAccounts()
+
     console.log(`>>> your address: ${deployer}`)
 
     const lzEndpointAddress = LZ_ENDPOINTS[hre.network.name]
@@ -12,9 +13,7 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
     let votingEscrowRemapper
 
     if (hre.network.name == "ethereum") {
-        votingEscrowRemapper = "0x6B5dA774890Db7B7b96C6f44e6a4b0F657399E2e"
-        // } else if (hre.network.name == "goerli") {
-        //     votingEscrowRemapper = "0x33A99Dcc4C85C014cf12626959111D5898bbCAbF"
+        votingEscrowRemapper = "0x83E443EF4f9963C77bd860f94500075556668cb8"
     } else if (hre.network.name == "hardhat") {
         votingEscrowRemapper = await deployments.get("VotingEscrowMock")
     } else {
@@ -32,4 +31,3 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
 }
 
 module.exports.tags = ["OmniVotingEscrow"]
-// module.exports.dependencies = ["VotingEscrowMock"]
